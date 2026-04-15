@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adult Height Predictor · Table Tennis England</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red:      #CC0000;
+    --red-dark: #9a0000;
+    --red-pale: #fff0f0;
+    --ink:      #1a1916;
+    --ink-mid:  #4a4845;
+    --ink-soft: #7a7773;
+    --ink-faint:#b0ada8;
+    --surface:  #ffffff;
+    --surface2: #f7f5f2;
+    --border:   #e8e5e0;
+    --border-med:#d0ccc6;
+    --pre-col:  #c0392b;
+    --circa-col:#c47a15;
+    --post-col: #1a6fa8;
+    --radius:   10px;
+    --radius-sm: 6px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface2);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: var(--ink);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-brand img {
+    height: 28px;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+  }
+  .header-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .header-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+    margin-top: 1px;
+  }
+  .header-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,0.15);
+  }
+  .method-pill {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Layout ── */
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--red);
+    margin-bottom: 10px;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--red);
+    opacity: 0.4;
+  }
+  .hero h1 {
+    font-size: clamp(26px, 5vw, 40px);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .hero p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 700px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .card-body { padding: 20px; }
+  .card-body + .card-body {
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Form elements ── */
+  .form-section {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    margin: 18px 0 10px;
+  }
+  .form-section:first-child { margin-top: 0; }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .form-row { display: flex; flex-direction: column; gap: 4px; }
+  .form-row.full { grid-column: 1 / -1; }
+
+  label.field-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  input[type="number"], input[type="date"], select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border-med);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input:focus, select:focus { border-color: var(--ink); }
+  input.has-value { background: #fafaf8; }
+
+  .ft-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .ft-row input { flex: 1; }
+  .ft-row span {
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-family: 'DM Mono', monospace;
+    flex-shrink: 0;
+  }
+  .ft-row input { width: 60px; flex: none; }
+
+  /* Unit toggle */
+  .unit-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border-med);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .unit-btn {
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.12s;
+    letter-spacing: 0.02em;
+  }
+  .unit-btn.active {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  /* Self-reported checkbox */
+  .sr-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .sr-row input[type="checkbox"] {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--ink);
+  }
+  .sr-row label {
+    font-size: 10px;
+    color: var(--ink-faint);
+    cursor: pointer;
+    line-height: 1.3;
+  }
+  .epstein-hint {
+    font-size: 10px;
+    color: var(--circa-col);
+    font-family: 'DM Mono', monospace;
+    margin-top: 2px;
+    min-height: 14px;
+  }
+
+  /* ── Result panel ── */
+  .result-empty {
+    padding: 48px 20px;
+    text-align: center;
+  }
+  .result-empty-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+  .result-empty p {
+    font-size: 13px;
+    color: var(--ink-faint);
+    line-height: 1.5;
+    max-width: 220px;
+    margin: 0 auto;
+  }
+
+  /* PAH% stat */
+  .pah-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .pah-number {
+    font-size: 48px;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-family: 'DM Mono', monospace;
+    transition: color 0.3s;
+  }
+  .pah-unit {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .badge-pre   { background: #ffeaea; color: var(--pre-col); }
+  .badge-circa { background: #fff3dc; color: var(--circa-col); }
+  .badge-post  { background: #deeeff; color: var(--post-col); }
+
+  /* Range bar */
+  .range-section { margin: 20px 0 0; }
+  .range-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+  .range-bar-wrap {
+    position: relative;
+    height: 48px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .range-fill {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 6px;
+    transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    opacity: 0.18;
+  }
+  .range-lo-mark, .range-hi-mark {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    border-radius: 2px;
+    opacity: 0.5;
+    transition: left 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .range-dot {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2.5px solid var(--surface);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+    z-index: 2;
+    transition: left 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s;
+  }
+  .range-values {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  .range-val-block { text-align: center; }
+  .range-val-block.mid { flex: 1; }
+  .range-val-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-faint);
+    margin-bottom: 1px;
+  }
+  .range-val-num {
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    color: var(--ink);
+    transition: color 0.3s;
+  }
+  .range-val-num.best {
+    font-size: 20px;
+    font-weight: 600;
+    transition: color 0.3s;
+  }
+  .range-val-sub {
+    font-size: 10px;
+    color: var(--ink-faint);
+    font-family: 'DM Mono', monospace;
+    margin-top: 1px;
+  }
+
+  /* Coach message */
+  .coach-msg {
+    margin-top: 20px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border-left: 3px solid var(--border-med);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: 12px;
+    color: var(--ink-mid);
+    line-height: 1.65;
+    transition: border-color 0.3s;
+  }
+  .coach-msg strong { color: var(--ink); }
+
+  /* Meta row */
+  .meta-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .meta-item { display: flex; flex-direction: column; gap: 1px; }
+  .meta-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-faint); }
+  .meta-value { font-size: 12px; font-weight: 500; font-family: 'DM Mono', monospace; color: var(--ink); }
+
+  /* About card */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 4px;
+  }
+  @media (max-width: 700px) { .about-grid { grid-template-columns: 1fr; } }
+  .about-item-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .about-item-body {
+    font-size: 11px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .ref-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--ink-faint);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-top: 4px;
+  }
+
+  /* Footer */
+  .site-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--ink-faint);
+    z-index: 100;
+    letter-spacing: 0.02em;
+  }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  /* Animations */
+  .fade-in { animation: fadeIn 0.35s ease both; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="header-brand">
+    <img src="https://www.tabletennisengland.co.uk/content/uploads/2021/09/TABLE-TENNIS-MASTER-LOGO-AW-CMYK-1.png"
+         alt="Table Tennis England"
+         onerror="this.style.display='none'">
+    <div class="header-divider"></div>
+    <div>
+      <div class="header-title">Adult Height Predictor</div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+</header>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">Sports Science Tool</div>
+    <h1>Predicted adult height</h1>
+    <p>Enter measurements below to see an estimated adult height range based on the Khamis-Roche method. Results update as you type.</p>
+  </div>
+
+  <div class="two-col">
+
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Measurements</span>
+      </div>
+      <div class="card-body">
+
+        <div class="form-section">Player</div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label class="field-label" for="dob-year">Date of birth</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="number" id="dob-day" min="1" max="31" step="1" placeholder="DD" style="width:62px;text-align:center" oninput="calculate()">
+              <span style="font-size:13px;color:var(--ink-faint)">/</span>
+              <input type="number" id="dob-month" min="1" max="12" step="1" placeholder="MM" style="width:62px;text-align:center" oninput="calculate()">
+              <span style="font-size:13px;color:var(--ink-faint)">/</span>
+              <input type="number" id="dob-year" min="2000" max="2030" step="1" placeholder="YYYY" style="width:80px;text-align:center" oninput="calculate()">
+            </div>
+            <div style="font-size:10px;color:var(--ink-faint);margin-top:3px">Day / Month / Year</div>
+          </div>
+          <div class="form-row">
+            <label class="field-label" for="sex">Sex</label>
+            <select id="sex" onchange="calculate()">
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section" style="margin-top:18px">Child</div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label class="field-label">
+              Standing height
+              <div class="unit-toggle">
+                <button class="unit-btn active" id="ch-cm-btn" onclick="setUnit('ch','cm')">cm</button>
+                <button class="unit-btn" id="ch-ft-btn" onclick="setUnit('ch','ft')">ft/in</button>
+              </div>
+            </label>
+            <div id="ch-cm-wrap">
+              <input type="number" id="ch-height" step="0.1" placeholder="152.0" oninput="calculate()">
+            </div>
+            <div id="ch-ft-wrap" style="display:none">
+              <div class="ft-row">
+                <input type="number" id="ch-height-ft" step="1" min="0" placeholder="5" oninput="syncFt('ch-height');calculate()">
+                <span>ft</span>
+                <input type="number" id="ch-height-in" step="0.1" min="0" max="11.9" placeholder="0.0" oninput="syncFt('ch-height');calculate()">
+                <span>in</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="field-label" for="mass">Body mass (kg)</label>
+            <input type="number" id="mass" step="0.1" placeholder="42.5" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="form-section" style="margin-top:18px">Parental heights</div>
+        <div class="form-grid">
+          <!-- Mother -->
+          <div class="form-row">
+            <label class="field-label">
+              Mother
+              <div class="unit-toggle">
+                <button class="unit-btn active" id="mum-cm-btn" onclick="setUnit('mum','cm')">cm</button>
+                <button class="unit-btn" id="mum-ft-btn" onclick="setUnit('mum','ft')">ft/in</button>
+              </div>
+            </label>
+            <div id="mum-cm-wrap">
+              <input type="number" id="mum" step="0.1" placeholder="163.0" oninput="calculate()">
+            </div>
+            <div id="mum-ft-wrap" style="display:none">
+              <div class="ft-row">
+                <input type="number" id="mum-ft" step="1" min="0" placeholder="5" oninput="syncFt('mum');calculate()">
+                <span>ft</span>
+                <input type="number" id="mum-in" step="0.1" min="0" max="11.9" placeholder="4.0" oninput="syncFt('mum');calculate()">
+                <span>in</span>
+              </div>
+            </div>
+            <div class="sr-row">
+              <input type="checkbox" id="mum-sr" onchange="calculate()">
+              <label for="mum-sr">Self-reported — apply Epstein correction</label>
+            </div>
+            <div class="epstein-hint" id="mum-hint"></div>
+          </div>
+          <!-- Father -->
+          <div class="form-row">
+            <label class="field-label">
+              Father
+              <div class="unit-toggle">
+                <button class="unit-btn active" id="dad-cm-btn" onclick="setUnit('dad','cm')">cm</button>
+                <button class="unit-btn" id="dad-ft-btn" onclick="setUnit('dad','ft')">ft/in</button>
+              </div>
+            </label>
+            <div id="dad-cm-wrap">
+              <input type="number" id="dad" step="0.1" placeholder="178.0" oninput="calculate()">
+            </div>
+            <div id="dad-ft-wrap" style="display:none">
+              <div class="ft-row">
+                <input type="number" id="dad-ft" step="1" min="0" placeholder="5" oninput="syncFt('dad');calculate()">
+                <span>ft</span>
+                <input type="number" id="dad-in" step="0.1" min="0" max="11.9" placeholder="10.0" oninput="syncFt('dad');calculate()">
+                <span>in</span>
+              </div>
+            </div>
+            <div class="sr-row">
+              <input type="checkbox" id="dad-sr" onchange="calculate()">
+              <label for="dad-sr">Self-reported — apply Epstein correction</label>
+            </div>
+            <div class="epstein-hint" id="dad-hint"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RESULT CARD -->
+    <div>
+      <div class="card" id="result-card">
+        <div class="card-header">
+          <span class="card-title">Predicted adult height</span>
+          <span id="result-age" style="font-size:11px;color:var(--ink-faint);font-family:'DM Mono',monospace"></span>
+        </div>
+        <div class="card-body" id="result-body">
+          <!-- Empty state -->
+          <div class="result-empty" id="empty-state">
+            <div class="result-empty-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.5"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M12 8v4m0 4h.01"/></svg>
+            </div>
+            <p>Complete the form to see a height prediction</p>
+          </div>
+          <!-- Result state (hidden until complete) -->
+          <div id="result-state" style="display:none">
+            <div class="pah-stat">
+              <div class="pah-number" id="res-pct">—</div>
+              <div class="pah-unit">% PAH</div>
+            </div>
+            <div id="res-badge"></div>
+
+            <div class="range-section">
+              <div class="range-label">Predicted adult height — 90% range</div>
+              <div class="range-bar-wrap" id="range-bar">
+                <div class="range-fill" id="range-fill"></div>
+                <div class="range-lo-mark" id="range-lo-mark"></div>
+                <div class="range-hi-mark" id="range-hi-mark"></div>
+                <div class="range-dot" id="range-dot"></div>
+              </div>
+              <div class="range-values">
+                <div class="range-val-block">
+                  <div class="range-val-label">Low end</div>
+                  <div class="range-val-num" id="res-lo">—</div>
+                  <div class="range-val-sub" id="res-lo-ft"></div>
+                </div>
+                <div class="range-val-block mid" style="text-align:center">
+                  <div class="range-val-label">Best estimate</div>
+                  <div class="range-val-num best" id="res-pah">—</div>
+                  <div class="range-val-sub" id="res-pah-ft"></div>
+                </div>
+                <div class="range-val-block" style="text-align:right">
+                  <div class="range-val-label">High end</div>
+                  <div class="range-val-num" id="res-hi">—</div>
+                  <div class="range-val-sub" id="res-hi-ft"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="coach-msg" id="res-msg"></div>
+
+            <div class="meta-row">
+              <div class="meta-item">
+                <div class="meta-label">Current height</div>
+                <div class="meta-value" id="res-cur-ht">—</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">Growth remaining</div>
+                <div class="meta-value" id="res-remaining">—</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">Age at measurement</div>
+                <div class="meta-value" id="res-age">—</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">90% CI half-width</div>
+                <div class="meta-value" id="res-ci">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About card -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-header">
+          <span class="card-title">About this tool</span>
+        </div>
+        <div class="card-body">
+          <div class="about-grid">
+            <div>
+              <div class="about-item-title">What this shows</div>
+              <div class="about-item-body">An estimated range for adult standing height. The 90% prediction interval means 9 in 10 individuals with these measurements will reach an adult height within the shown range.</div>
+            </div>
+            <div>
+              <div class="about-item-title">What this doesn't show</div>
+              <div class="about-item-body">This is a statistical estimate, not a guarantee. Nutrition, health, training load and individual genetics influence final height in ways the model cannot fully capture.</div>
+            </div>
+            <div>
+              <div class="about-item-title">Epstein correction</div>
+              <div class="about-item-body">When parental heights are self-reported rather than measured, a regression correction is applied to account for the tendency to over-report. Tick per parent as needed.</div>
+            </div>
+          </div>
+          <hr>
+          <div style="font-size:11px;color:var(--ink-faint)">
+            Khamis HJ, Roche AF. Predicting adult stature without the use of skeletal age: the Khamis-Roche method. <em>Pediatrics</em> 1994;94(4):504–7. Correction: <em>Pediatrics</em> 1995;95(3):457. &nbsp;·&nbsp; Epstein LH et al. Child and parent weight, height, and body composition. <em>Hum Biol</em> 1995;67(3):387–98.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  Made by Dr Rich Kite
+</footer>
+
+<script>
+// ─── Khamis-Roche 1995 corrigendum coefficient tables ─────────────────────────
+const KR_MALE = [
+  [4.0,-10.2567,1.23812,-0.087235,0.50286],[4.5,-10.7190,1.15964,-0.074454,0.52887],
+  [5.0,-11.0213,1.10674,-0.064778,0.53919],[5.5,-11.1556,1.07480,-0.057760,0.53691],
+  [6.0,-11.1138,1.05923,-0.052947,0.52513],[6.5,-11.0221,1.05542,-0.049892,0.50692],
+  [7.0,-10.9984,1.05877,-0.048144,0.48538],[7.5,-11.0214,1.06467,-0.047256,0.46361],
+  [8.0,-11.0696,1.06853,-0.046778,0.44469],[8.5,-11.1220,1.06572,-0.046261,0.43171],
+  [9.0,-11.1571,1.05166,-0.045254,0.42776],[9.5,-11.1405,1.02174,-0.043311,0.43593],
+  [10.0,-11.0380,0.97135,-0.039981,0.45932],[10.5,-10.8286,0.89589,-0.034814,0.50101],
+  [11.0,-10.4917,0.81239,-0.029050,0.54781],[11.5,-10.0065,0.74134,-0.024167,0.58409],
+  [12.0,-9.3522,0.68325,-0.020076,0.60927],[12.5,-8.6055,0.63869,-0.016681,0.62279],
+  [13.0,-7.8632,0.60818,-0.013895,0.62407],[13.5,-7.1348,0.59228,-0.011624,0.61253],
+  [14.0,-6.4299,0.59151,-0.009776,0.58762],[14.5,-5.7578,0.60643,-0.008261,0.54875],
+  [15.0,-5.1282,0.63757,-0.006988,0.49536],[15.5,-4.5092,0.68548,-0.005863,0.42687],
+  [16.0,-3.9292,0.75069,-0.004795,0.34271],[16.5,-3.4873,0.83375,-0.003695,0.24231],
+  [17.0,-3.2830,0.93520,-0.002470,0.12510],[17.5,-3.4156,1.05558,-0.001027,-0.00950]
+];
+const KR_FEMALE = [
+  [4.0,-8.13250,1.24768,-0.19435,0.44774],[4.5,-6.47656,1.22177,-0.18519,0.41381],
+  [5.0,-5.13583,1.19932,-0.17530,0.38467],[5.5,-4.13791,1.17880,-0.16484,0.36039],
+  [6.0,-3.51039,1.15866,-0.15400,0.34105],[6.5,-3.14322,1.13737,-0.14294,0.32672],
+  [7.0,-2.87645,1.11342,-0.13184,0.31748],[7.5,-2.66291,1.08525,-0.12086,0.31340],
+  [8.0,-2.45559,1.05135,-0.11019,0.31457],[8.5,-2.20728,1.01018,-0.09999,0.32105],
+  [9.0,-1.87098,0.96020,-0.09044,0.33291],[9.5,-1.06330,0.89989,-0.08171,0.35025],
+  [10.0,0.33468,0.82771,-0.07397,0.37312],[10.5,1.97366,0.74213,-0.06739,0.40161],
+  [11.0,3.50436,0.67173,-0.06136,0.42042],[11.5,4.57747,0.64150,-0.05518,0.41686],
+  [12.0,4.84365,0.64452,-0.04894,0.39490],[12.5,4.27869,0.67386,-0.04272,0.35850],
+  [13.0,3.21417,0.72260,-0.03661,0.31163],[13.5,1.83456,0.78383,-0.03067,0.25826],
+  [14.0,0.32425,0.85062,-0.02500,0.20235],[14.5,-1.13224,0.91605,-0.01967,0.14787],
+  [15.0,-2.35055,0.97319,-0.01477,0.09880],[15.5,-3.10326,1.01514,-0.01037,0.05909],
+  [16.0,-3.17885,1.03496,-0.00655,0.03272],[16.5,-2.41657,1.02573,-0.00340,0.02364],
+  [17.0,-0.65579,0.98054,-0.00100,0.03584],[17.5,2.26429,0.89246,0.00057,0.07327]
+];
+
+// 90% CI: published static values (Khamis & Roche 1994/1995 corrigendum)
+const KR_CI = { M: 5.3, F: 4.5 };
+
+// ─── Conversions ──────────────────────────────────────────────────────────────
+const cmToIn = cm => cm / 2.54;
+const kgToLb = kg => kg * 2.20462;
+const inToCm = i  => i  * 2.54;
+
+function ftInToCm(ft, inches) {
+  return ((parseFloat(ft)||0) * 12 + (parseFloat(inches)||0)) * 2.54;
+}
+function cmToFtIn(cm) {
+  const totalIn = cm / 2.54;
+  const ft = Math.floor(totalIn / 12);
+  const inches = +(totalIn % 12).toFixed(1);
+  return `${ft}ft ${inches}in`;
+}
+
+// ─── Khamis-Roche ─────────────────────────────────────────────────────────────
+function parseDate(s) { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function ageDecimal(dob, date) { return (parseDate(date)-parseDate(dob))/(365.25*24*3600*1000); }
+
+function epDad(h) { return 2.316 + 0.955*h; }
+function epMum(h) { return 2.803 + 0.953*h; }
+
+function khamisRoche(ageDec, heightCm, massKg, dadCm, mumCm, sex) {
+  const table = sex === 'M' ? KR_MALE : KR_FEMALE;
+  const hIn = cmToIn(heightCm);
+  const wLb = kgToLb(massKg);
+  const mpIn = cmToIn((dadCm + mumCm) / 2);
+  const age = Math.min(17.5, Math.max(4.0, Math.floor(ageDec * 2) / 2));
+  const row = table.find(r => r[0] === age) || table[table.length-1];
+  const [, b0, bHt, bWt, bMp] = row;
+  const pahCm = inToCm(b0 + bHt*hIn + bWt*wLb + bMp*mpIn);
+  return { pah: pahCm, pct: (heightCm / pahCm) * 100 };
+}
+
+function statusFromPct(p) {
+  return p < 90 ? 'Pre-PHV' : p <= 95 ? 'Circa-PHV' : 'Post-PHV';
+}
+
+// ─── Per-field unit toggle ────────────────────────────────────────────────────
+function setUnit(field, unit) {
+  document.getElementById(`${field}-cm-btn`).classList.toggle('active', unit==='cm');
+  document.getElementById(`${field}-ft-btn`).classList.toggle('active', unit==='ft');
+  document.getElementById(`${field}-cm-wrap`).style.display = unit==='cm' ? '' : 'none';
+  document.getElementById(`${field}-ft-wrap`).style.display = unit==='ft' ? '' : 'none';
+  if (unit==='ft') {
+    const cmId = field === 'ch' ? 'ch-height' : field;
+    const cm = parseFloat(document.getElementById(cmId).value);
+    if (!isNaN(cm) && cm > 0) {
+      const totalIn = cm / 2.54;
+      document.getElementById(`${field === 'ch' ? 'ch-height' : field}-ft`).value = Math.floor(totalIn/12);
+      document.getElementById(`${field === 'ch' ? 'ch-height' : field}-in`).value = +(totalIn%12).toFixed(1);
+    }
+  }
+  calculate();
+}
+
+function syncFt(id) {
+  const ft  = parseFloat(document.getElementById(`${id}-ft`).value) || 0;
+  const ins = parseFloat(document.getElementById(`${id}-in`).value) || 0;
+  const cm = (ft * 12 + ins) * 2.54;
+  if (cm > 0) document.getElementById(id).value = cm.toFixed(1);
+}
+
+// ─── Main calculation ─────────────────────────────────────────────────────────
+const COL = { 'Pre-PHV': 'var(--pre-col)', 'Circa-PHV': 'var(--circa-col)', 'Post-PHV': 'var(--post-col)' };
+const BADGE = { 'Pre-PHV': 'badge-pre', 'Circa-PHV': 'badge-circa', 'Post-PHV': 'badge-post' };
+
+function calculate() {
+  const dobDay   = parseInt(document.getElementById('dob-day').value);
+  const dobMonth = parseInt(document.getElementById('dob-month').value);
+  const dobYear  = parseInt(document.getElementById('dob-year').value);
+  const dobValid = !isNaN(dobDay) && !isNaN(dobMonth) && !isNaN(dobYear)
+                   && dobDay >= 1 && dobDay <= 31
+                   && dobMonth >= 1 && dobMonth <= 12
+                   && dobYear >= 2000 && dobYear <= 2030;
+  const dob = dobValid
+    ? `${dobYear}-${String(dobMonth).padStart(2,'0')}-${String(dobDay).padStart(2,'0')}`
+    : '';
+  const sex    = document.getElementById('sex').value;
+  const height = parseFloat(document.getElementById('ch-height').value);
+  const mass   = parseFloat(document.getElementById('mass').value);
+  const mumRaw = parseFloat(document.getElementById('mum').value);
+  const dadRaw = parseFloat(document.getElementById('dad').value);
+  const mumSR  = document.getElementById('mum-sr').checked;
+  const dadSR  = document.getElementById('dad-sr').checked;
+
+  // Epstein hints
+  document.getElementById('mum-hint').textContent = (mumSR && !isNaN(mumRaw)) ? `Adjusted: ${epMum(mumRaw).toFixed(1)} cm` : '';
+  document.getElementById('dad-hint').textContent = (dadSR && !isNaN(dadRaw)) ? `Adjusted: ${epDad(dadRaw).toFixed(1)} cm` : '';
+
+  const empty  = document.getElementById('empty-state');
+  const result = document.getElementById('result-state');
+
+  if (!dob || isNaN(height) || isNaN(mass) || isNaN(mumRaw) || isNaN(dadRaw)) {
+    empty.style.display=''; result.style.display='none';
+    document.getElementById('result-age').textContent='';
+    return;
+  }
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const ageDec = ageDecimal(dob, todayStr);
+
+  if (ageDec < 4 || ageDec > 17.5) {
+    empty.querySelector('p').textContent = ageDec < 4
+      ? 'Age must be at least 4 years for a valid prediction.'
+      : 'Age must be 17.5 years or under for a valid prediction.';
+    empty.style.display=''; result.style.display='none';
+    document.getElementById('result-age').textContent='';
+    return;
+  }
+
+  empty.querySelector('p').textContent = 'Complete the form to see a height prediction';
+
+  const mum = mumSR ? epMum(mumRaw) : mumRaw;
+  const dad = dadSR ? epDad(dadRaw) : dadRaw;
+
+  const { pah, pct } = khamisRoche(ageDec, height, mass, dad, mum, sex);
+  const ci  = KR_CI[sex];
+  const lo  = pah - ci, hi = pah + ci;
+  const status = statusFromPct(pct);
+  const col = COL[status];
+  const remaining = pah - height;
+
+  // Show result
+  empty.style.display='none'; result.style.display='';
+  result.classList.add('fade-in');
+
+  document.getElementById('result-age').textContent = `Age ${ageDec.toFixed(1)}y`;
+
+  // PAH% and badge
+  document.getElementById('res-pct').textContent = pct.toFixed(1);
+  document.getElementById('res-pct').style.color = col;
+  document.getElementById('res-badge').innerHTML = `<span class="status-badge ${BADGE[status]}">${status}</span>`;
+
+  // Range bar
+  const scale = 14; // cm on each side of PAH for bar scale
+  const scaleMin = pah - scale, scaleMax = pah + scale;
+  const pct2left = v => Math.max(1, Math.min(99, (v - scaleMin) / (scaleMax - scaleMin) * 100)).toFixed(1);
+  const loL = pct2left(lo), hiL = pct2left(hi), midL = pct2left(pah);
+  const fillW = (pct2left(hi) - pct2left(lo)).toFixed(1);
+
+  document.getElementById('range-fill').style.cssText = `left:${loL}%;width:${fillW}%;background:${col};`;
+  document.getElementById('range-lo-mark').style.cssText = `left:${loL}%;background:${col};`;
+  document.getElementById('range-hi-mark').style.cssText = `left:${hiL}%;background:${col};`;
+  document.getElementById('range-dot').style.cssText = `left:${midL}%;background:${col};`;
+
+  // Values
+  document.getElementById('res-lo').textContent  = `${lo.toFixed(1)} cm`;
+  document.getElementById('res-pah').textContent = `${pah.toFixed(1)} cm`;
+  document.getElementById('res-hi').textContent  = `${hi.toFixed(1)} cm`;
+  document.getElementById('res-lo').style.color  = col;
+  document.getElementById('res-pah').style.color = col;
+  document.getElementById('res-hi').style.color  = col;
+  document.getElementById('res-lo-ft').textContent  = cmToFtIn(lo);
+  document.getElementById('res-pah-ft').textContent = cmToFtIn(pah);
+  document.getElementById('res-hi-ft').textContent  = cmToFtIn(hi);
+
+  // Meta
+  document.getElementById('res-cur-ht').textContent  = `${height.toFixed(1)} cm (${cmToFtIn(height)})`;
+  document.getElementById('res-remaining').textContent = `~${remaining.toFixed(1)} cm (${cmToFtIn(pah - height).replace('ft','ft ~')})`;
+  document.getElementById('res-age').textContent = `${ageDec.toFixed(2)} years`;
+  document.getElementById('res-ci').textContent  = `±${ci} cm`;
+
+  // Coach message
+  const phvMsg = {
+    'Pre-PHV':   'This young person is <strong>Pre-PHV</strong> — they have not yet reached their main growth spurt. Most of their height growth remains ahead of them.',
+    'Circa-PHV': 'This young person is <strong>Circa-PHV</strong> — they are currently in or near their main growth spurt and likely growing at or near their peak rate.',
+    'Post-PHV':  'This young person is <strong>Post-PHV</strong> — their main growth spurt has passed. Adult height is approaching and this prediction is likely to be the most accurate.'
+  }[status];
+  document.getElementById('res-msg').innerHTML =
+    `${phvMsg} On average, approximately <strong>${remaining.toFixed(1)} cm</strong> of growth remains. The range shown reflects genuine biological variation — adult height could reasonably fall anywhere within the shaded band.`;
+  document.getElementById('res-msg').style.borderColor = col;
+}
+</script>
+</body>
+</html>
